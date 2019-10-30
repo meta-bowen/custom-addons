@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+        <menuitem id="menu_stock_extend_default_list"
+            />
+
+        <act_window
+            name="Stock Extend"
+            id="stock_extend_action_user"
+            res_model="stock.extend"
+            context="{'search_default_user_id': [active_id], 'default_user_id': active_id}"
+            />
+</odoo>

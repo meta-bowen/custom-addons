@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+        <record id="view_product_pricelist_inherit" model="ir.ui.view">
+            <field name="name">Product Pricelists</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="product.product_template_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//page[@name='inventory']" position="after">
+                    <page name="pricelist" string="Pricelist" groups="product.group_pricelist_item">
+                        <separator string="Pricelist Items"/>
+                        <field name="item_ids" nolabel="1" context="{'default_base':'list_price'}">
+                            <tree editable="bottom">
+                                <field name="pricelist_id" string="Pricelist Name"/>
+                                <field name="name" string="Product Name"/>
+                                <field name="min_quantity"/>
+                                <field name="date_start"/>
+                                <field name="date_end"/>
+                                <field name="fixed_price" string="Price"/>
+                                <field name="currency_id" />
+                                <field name="price" string="Price" invisible="1"/>
+                                <field name="base" invisible="1"/>
+                                <field name="price_discount" invisible="1"/>
+                                <field name="applied_on" invisible="1"/>
+                                <field name="compute_price" invisible="1"/>
+                            </tree>
+                        </field>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+
+</odoo>

@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_type_admin_user,aftersale.type.admin.user,model_aftersale_type,group_aftersale_manager,1,1,1,1
+access_type_user,aftersale.type.user,model_aftersale_type,base.group_user,1,0,0,0
+access_aftersale_system_user,aftersale.request.system.user,model_aftersale_request,base.group_user,1,1,1,1
+access_aftersale_stage_user,aftersale.stage.user,model_aftersale_stage,base.group_user,1,0,0,0
+access_aftersale_stage_admin_user,aftersale.request.stage system user,model_aftersale_stage,group_aftersale_manager,1,1,1,1
+access_aftersale_team_user,aftersale.team.user,model_aftersale_team,base.group_user,1,0,0,0
+access_aftersale_team_admin_user,aftersale.team.admin.user,model_aftersale_team,group_aftersale_manager,1,1,1,1

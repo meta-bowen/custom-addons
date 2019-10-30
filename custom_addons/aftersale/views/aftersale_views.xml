@@ -1,0 +1,750 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- equiment.request : views -->
+    <record id="hr_aftersale_request_view_search" model="ir.ui.view">
+        <field name="name">aftersale.request.search</field>
+        <field name="model">aftersale.request</field>
+        <field name="arch" type="xml">
+            <search string="aftersale Request Search">
+                <field name="name"/>
+                <field name="category_id"/>
+                <field name="user_id"/>
+                <field name="product_id"/>
+                <field name="owner_user_id"/>
+                <field name="stage_id"/>
+                <field name="aftersale_team_id"/>
+                <filter string="My Requests" name="my_requests" domain="[('user_id', '=', uid)]"/>
+                <separator/>
+                <filter string="To do" domain="[('stage_id.done', '=', False)]" name="todo"/>
+                <filter string="Blocked" name="kanban_state_block" domain="[('kanban_state', '=', 'blocked')]"/>
+                <filter string="In Progress" name="progress" domain="[('kanban_state', '=', 'normal')]"/>
+                <filter string="Done" name="done" domain="[('kanban_state', '=', 'done')]"/>
+                <filter string="Top Priorities" name="top_priority" domain="[('priority', '=', '3')]"/>
+                <separator/>
+                <filter string="Unscheduled AfterSale" domain="[('schedule_date', '=', False)]" name="unscheduled"/>
+                <separator/>
+                <filter string="My Activities" name="activities_my"
+                    domain="[('activity_ids.user_id', '=', uid)]"/>
+                <separator/>
+                <filter string="Late Activities" name="activities_overdue"
+                    domain="[('activity_ids.date_deadline', '&lt;', context_today().strftime('%Y-%m-%d'))]"
+                    help="Show all records which has next action date is before today"/>
+                <filter string="Today Activities" name="activities_today"
+                    domain="[('activity_ids.date_deadline', '=', context_today().strftime('%Y-%m-%d'))]"/>
+                <filter string="Future Activities" name="activities_upcoming_all"
+                        domain="[('activity_ids.date_deadline', '&gt;', context_today().strftime('%Y-%m-%d'))
+                        ]"/>
+                <separator/>
+                <filter string="Unread Messages" name="message_needaction" domain="[('message_needaction','=',True)]"/>
+                <separator/>
+                <filter string="Archived" name="inactive" domain="[('archive','=',True)]"/>
+                <group  expand='0' string='Group by...'>
+                    <filter string='Assigned' name="assigned" domain="[]" context="{'group_by': 'user_id'}"/>
+                    <filter string='Category' name="category" domain="[]" context="{'group_by' : 'category_id'}"/>
+                    <filter string='Stages' name="stages" domain="[]" context="{'group_by' : 'stage_id'}"/>
+                    <filter string='Created By' name='created_by' domain="[]" context="{'group_by': 'owner_user_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="hr_aftersale_request_view_form" model="ir.ui.view">
+        <field name="name">aftersale.request.form</field>
+        <field name="model">aftersale.request</field>
+        <field name="arch" type="xml">
+            <form string="AfterSale Request">
+                <header>
+                    <button string="Cancel" name="archive_aftersale_request" type="object" attrs="{'invisible': [('archive', '=', True)]}"/>
+                    <button string="Reopen Request" name="reset_aftersale_request" type="object" attrs="{'invisible': [('archive', '=', False)]}"/>
+                    <field name="stage_id" widget="statusbar" options="{'clickable': '1'}" attrs="{'invisible': [('archive', '=', True)]}"/>
+                </header>
+                <sheet>
+                    <div attrs="{'invisible': [('archive', '=', False)]}">
+                        <span class="badge badge-warning float-right">Canceled</span>
+                    </div>
+                    <div class="oe_right">
+                        <field name="kanban_state" class="oe_inline" widget="state_selection"/>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only" string="Name"/>
+                        <h1>
+                            <field name="name" placeholder="AfterSale Request"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="owner_user_id" string="Requested By"/>
+                            <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
+                            <field name="product_id"  context="{'default_category_id':category_id}"/>
+                            <field name="category_id" groups="aftersale.group_aftersale_manager" attrs="{'invisible': [('product_id', '=', False)]}"/>
+                            <field name="request_date" readonly="True"/>
+                            <field name="close_date" groups="base.group_no_one" readonly="True"/>
+                            <field name="archive" invisible="1"/>
+                            <field name="aftersale_type" widget="radio"/>
+                        </group>
+                        <group>
+                            <field name="aftersale_team_id" options="{'no_create': True, 'no_open': True}"/>
+                            <field name="user_id" string="Responsible"/>
+                            <field name="schedule_date"/>
+                            <label for="duration"/>
+                            <div>
+                                <field name="duration"
+                                       widget="float_time"
+                                       class="oe_inline"/> <span class="ml8">hours</span>
+                            </div>
+                            <field name="priority" widget="priority"/>
+                        </group>
+                    </group>
+                    <field name='description' placeholder="Internal Note ......."/>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="hr_aftersale_request_view_kanban" model="ir.ui.view">
+        <field name="name">aftersale.request.kanban</field>
+            <field name="model">aftersale.request</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="stage_id">
+                <field name="stage_id"/>
+                <field name="color"/>
+                <field name="priority"/>
+                <field name="product_id"/>
+                <field name="user_id"/>
+                <field name="owner_user_id"/>
+                <field name="category_id"/>
+                <field name="kanban_state"/>
+                <field name="message_needaction_counter"/>
+                <field name="activity_ids" />
+                <field name="activity_state" />
+                <templates>
+                    <t t-name="kanban-tooltip">
+                       <ul class="oe_kanban_tooltip">
+                          <li><b>Category:</b> <field name="category_id"/></li>
+                          <li><b>Request to:</b> <field name="user_id"/></li>
+                       </ul>
+                    </t>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_color_#{kanban_getcolor(record.color.raw_value)} oe_kanban_card oe_kanban_global_click oe_semantic_html_override">
+                            <div class="o_dropdown_kanban dropdown">
+
+                                <a role="button" class="dropdown-toggle o-no-caret btn" data-toggle="dropdown" href="#" aria-label="Dropdown menu" title="Dropdown menu">
+                                    <span class="fa fa-ellipsis-v"/>
+                                </a>
+                                <div class="dropdown-menu" role="menu">
+                                    <t t-if="widget.editable"><a role="menuitem" type="edit" class="dropdown-item">Edit...</a></t>
+                                    <t t-if="widget.deletable"><a role="menuitem" type="delete" class="dropdown-item">Delete</a></t>
+                                    <ul class="oe_kanban_colorpicker" data-field="color"/>
+                                </div>
+                            </div>
+                            <div class="oe_kanban_content" tooltip="kanban-tooltip">
+                                <div class="o_kanban_record_top">
+                                    <b class="o_kanban_record_title"><field name="name"/></b>
+                                </div>
+                                <div class="o_kanban_record_body">
+                                    <span name="owner_user_id" t-if="record.owner_user_id.raw_value">Requested by : <field name="owner_user_id"/><br/></span>
+                                    <span class="oe_grey" t-if="record.product_id.raw_value"><field name="product_id"/><br/></span>
+                                    <span t-if="record.category_id.raw_value"><field name="category_id"/></span>
+                                </div>
+                                <div class="o_kanban_record_bottom">
+                                    <div class="oe_kanban_bottom_left">
+                                        <field name="priority" widget="priority"/>
+                                        <t t-if="record.message_needaction_counter.raw_value">
+                                            <span role="alert" class='oe_kanban_mail_new' title='Unread Messages'><i class='fa fa-comments' role="img" aria-label="Unread Messages"/><t t-raw="record.message_needaction_counter.raw_value"/></span>
+                                        </t>
+                                        <div class="o_kanban_inline_block ml4 mr4">
+                                            <field name="activity_ids" widget="kanban_activity" />
+                                        </div>
+                                    </div>
+                                    <div class="oe_kanban_bottom_right">
+                                        <field name="kanban_state" widget="state_selection"/>
+                                        <img t-att-src="kanban_image('res.users', 'image_small', record.user_id.raw_value)" t-att-title="record.user_id.value" t-att-alt="record.user_id.value" width="24" height="24" class="oe_kanban_avatar float-right"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="oe_clear"></div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="hr_aftersale_request_view_tree" model="ir.ui.view">
+        <field name="name">aftersale.request.tree</field>
+        <field name="model">aftersale.request</field>
+        <field name="arch" type="xml">
+            <tree string="aftersale Request" decoration-bf="message_needaction==True">
+                <field name="message_needaction" invisible="1"/>
+                <field name="name"/>
+                <field name="request_date" groups="base.group_no_one"/>
+                <field name="owner_user_id"/>
+                <field name="user_id"/>
+                <field name="category_id" groups="aftersale.group_aftersale_manager"/>
+                <field name="stage_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="hr_aftersale_request_view_graph" model="ir.ui.view">
+        <field name="name">aftersale.request.graph</field>
+        <field name="model">aftersale.request</field>
+        <field name="arch" type="xml">
+            <graph string="aftersale Request">
+                <field name="user_id"/>
+                <field name="stage_id"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="hr_aftersale_request_view_pivot" model="ir.ui.view">
+        <field name="name">aftersale.request.pivot</field>
+        <field name="model">aftersale.request</field>
+        <field name="arch" type="xml">
+            <pivot string="aftersale Request">
+                <field name="user_id"/>
+                <field name="stage_id"/>
+            </pivot>
+        </field>
+    </record>
+
+
+    <record id="hr_aftersale_view_calendar" model="ir.ui.view">
+        <field name="name">aftersale.request.calendar</field>
+        <field name="model">aftersale.request</field>
+        <field name="arch" type="xml">
+            <calendar date_start="schedule_date" date_delay="duration" color="user_id">
+                <field name="name"/>
+                <field name="user_id"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!-- equiment.request : actions -->
+    <record id="hr_aftersale_request_action" model="ir.actions.act_window">
+        <field name="name">AfterSale Requests</field>
+        <field name="res_model">aftersale.request</field>
+        <field name="view_mode">kanban,tree,form,pivot,graph,calendar</field>
+        <field name="view_id" ref="hr_aftersale_request_view_kanban"/>
+        <field name="context">{'default_user_id': uid}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Add a new aftersale request
+            </p><p>
+                Follow the process of the request and communicate with the collaborator.
+            </p>
+        </field>
+    </record>
+
+    <record id="hr_aftersale_request_action_link" model="ir.actions.act_window">
+        <field name="name">AfterSale Requests</field>
+        <field name="res_model">aftersale.request</field>
+        <field name="view_mode">kanban,tree,form,pivot,graph,calendar</field>
+        <field name="search_view_id" ref="hr_aftersale_request_view_search"/>
+        <field name="view_id" ref="hr_aftersale_request_view_kanban"/>
+        <field name="context">{
+            'search_default_category_id': [active_id],
+            'default_category_id': active_id,
+        }</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Add a new aftersale request
+            </p><p>
+                Follow the process of the request and communicate with the collaborator.
+            </p>
+        </field>
+    </record>
+
+    <record id="hr_aftersale_todo_request_action_from_dashboard" model="ir.actions.act_window">
+        <field name="name">AfterSale Requests</field>
+        <field name="res_model">aftersale.request</field>
+        <field name="view_mode">kanban,tree,form,pivot,graph,calendar</field>
+        <field name="context">{
+            'default_aftersale_team_id': active_id,
+        }</field>
+        <!--active_id 指向的是点击动作当前行的记录id-->
+        <!--<field name="domain">[('aftersale_team_id', '=', active_id)]</field>-->
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Add a new aftersale request
+            </p><p>
+                Follow the process of the request and communicate with the collaborator.
+            </p>
+        </field>
+    </record>
+
+    <record id="hr_aftersale_request_action_cal" model="ir.actions.act_window">
+        <field name="name">AfterSale Requests</field>
+        <field name="res_model">aftersale.request</field>
+        <field name="view_mode">calendar,kanban,tree,form,pivot,graph</field>
+        <field name="view_id" ref="hr_aftersale_view_calendar"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Add a new aftersale request
+            </p><p>
+                Follow the process of the request and communicate with the collaborator.
+            </p>
+        </field>
+    </record>
+
+    <record id="aftersale_request_action_reports" model="ir.actions.act_window">
+        <field name="name">AfterSale Requests</field>
+        <field name="res_model">aftersale.request</field>
+        <field name="view_mode">graph,pivot,kanban,tree,form,calendar</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Add a new aftersale request
+            </p><p>
+                Follow the process of the request and communicate with the collaborator.
+            </p>
+        </field>
+    </record>
+
+    <!-- aftersale.stage : views -->
+    <record id="hr_aftersale_stage_view_search" model="ir.ui.view">
+        <field name="name">aftersale.stage.search</field>
+        <field name="model">aftersale.stage</field>
+        <field name="arch" type="xml">
+            <search string="AfterSale Request Stages">
+               <field name="name" string="AfterSale Request Stages"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="hr_aftersale_stage_view_tree" model="ir.ui.view">
+        <field name="name">aftersale.stage.tree</field>
+        <field name="model">aftersale.stage</field>
+        <field name="arch" type="xml">
+            <tree string="AfterSale Request Stage" editable="top">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="fold"/>
+                <field name="done"/>
+            </tree>
+        </field>
+    </record>
+    <record id="hr_aftersale_stage_view_kanban" model="ir.ui.view">
+        <field name="name">aftersale.stage.kanban</field>
+        <field name="model">aftersale.stage</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_mobile">
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_global_click">
+                            <div>
+                                <strong><field name="name"/></strong>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="aftersale_type_view_search" model="ir.ui.view">
+        <field name="name">aftersale.type.search</field>
+        <field name="model">aftersale.type</field>
+        <field name="arch" type="xml">
+            <search string="Search">
+                <filter string="Archived" domain="[('active', '=', False)]" name="inactive"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="hr_aftersale_type_view_tree" model="ir.ui.view">
+        <field name="name">aftersale.type.tree</field>
+        <field name="model">aftersale.type</field>
+        <field name="arch" type="xml">
+            <tree string="AfterSale Request Type">
+                <field name="name"/>
+                <field name="description"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- aftersale.type: views -->
+    <record id="hr_aftersale_type_view_form" model="ir.ui.view">
+        <field name="name">aftersale.type.form</field>
+        <field name="model">aftersale.type</field>
+        <field name="arch" type="xml">
+            <form string="AfterSale Type">
+                <sheet>
+                <div class="oe_button_box" name="button_box">
+                    <button class="oe_stat_button" type="object" name="toggle_active" icon="fa-archive">
+                        <field name="active" widget="boolean_button" options='{"terminology": "archive"}'/>
+                    </button>
+                </div>
+                <div class="oe_title">
+                    <label for="name" class="oe_edit_only" string="AfterSale Type Name"/>
+                    <h1>
+                        <field name="name"/>
+                    </h1>
+                </div>
+                <group>
+                    <group>
+                        <field name="description"/>
+                    </group>
+                </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- aftersale.stages : actions -->
+    <record id="hr_aftersale_stage_action" model="ir.actions.act_window">
+        <field name="name">Stages</field>
+        <field name="res_model">aftersale.stage</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="view_type">form</field>
+        <field name="help" type="html">
+          <p class="o_view_nocontent_smiling_face">
+            Add a new stage in the aftersale request
+          </p>
+        </field>
+    </record>
+
+    <!-- aftersale.type : actions -->
+    <record id="hr_aftersale_type_action" model="ir.actions.act_window">
+        <field name="name">AfterSale Type</field>
+        <field name="res_model">aftersale.type</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_type">form</field>
+        <field name="help" type="html">
+          <p class="o_view_nocontent_smiling_face">
+            Add a new type in the aftersale request
+          </p>
+        </field>
+    </record>
+
+    <!-- aftersale.team: views -->
+    <record id="aftersale_team_view_form" model="ir.ui.view">
+        <field name="name">aftersale.team.form</field>
+        <field name="model">aftersale.team</field>
+        <field name="arch" type="xml">
+            <form string="AfterSale Team">
+                <sheet>
+                <div class="oe_button_box" name="button_box">
+                    <button class="oe_stat_button" type="object" name="toggle_active" icon="fa-archive">
+                        <field name="active" widget="boolean_button" options='{"terminology": "archive"}'/>
+                    </button>
+                </div>
+                <div class="oe_title">
+                    <label for="name" class="oe_edit_only" string="Team Name"/>
+                    <h1>
+                        <field name="name"/>
+                    </h1>
+                </div>
+                <group>
+                    <group>
+                        <field name="member_ids" widget="many2many_tags" options="{'color_field': 'color', 'no_create': True}"/>
+                    </group>
+                    <group>
+                        <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
+                    </group>
+                </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="aftersale_team_view_tree" model="ir.ui.view">
+        <field name="name">aftersale.team.tree</field>
+        <field name="model">aftersale.team</field>
+        <field name="arch" type="xml">
+            <tree string="AfterSale Team">
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="aftersale_team_view_kanban" model="ir.ui.view">
+        <field name="name">aftersale.team.kanban</field>
+        <field name="model">aftersale.team</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_mobile">
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_global_click">
+                            <div>
+                                <strong><field name="name"/></strong>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="aftersale_team_kanban" model="ir.ui.view">
+        <field name="name">aftersale.team.kanban</field>
+        <field name="model">aftersale.team</field>
+        <field name="arch" type="xml">
+            <kanban class="oe_background_grey o_kanban_dashboard o_aftersale_team_kanban" create="0">
+                <field name="name"/>
+                <field name="color"/>
+                <field name="todo_request_ids"/>
+                <field name="todo_request_count"/>
+                <field name="todo_request_count_date"/>
+                <field name="todo_request_count_high_priority"/>
+                <field name="todo_request_count_block"/>
+                <field name="todo_request_count_unscheduled"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="#{kanban_color(record.color.raw_value)}">
+                            <div t-attf-class="o_kanban_card_header">
+                                <div class="o_kanban_card_header_title">
+                                    <div class="o_primary">
+                                        <a name="%(hr_aftersale_todo_request_action_from_dashboard)d" type="action">
+                                            <field name="name"/>
+                                        </a></div>
+                                </div>
+                                <div class="o_kanban_manage_button_section">
+                                    <a class="o_kanban_manage_toggle_button" href="#"><i class="fa fa-ellipsis-v" role="img" aria-label="Manage" title="Manage"/></a>
+                                </div>
+                            </div>
+                            <div class="container o_kanban_card_content">
+                                <div class="row">
+                                    <div class="col-6 o_kanban_primary_left">
+                                        <button class="btn btn-primary" name="%(hr_aftersale_todo_request_action_from_dashboard)d" type="action" context="{'search_default_todo': 1}">
+                                            <t t-esc="record.todo_request_count.value"/> To Do
+                                        </button>
+                                    </div>
+                                    <div class="col-6 o_kanban_primary_right">
+                                        <div class="row">
+                                            <div class="col-9">
+                                                <a name="%(hr_aftersale_request_action_cal)d" type="action">
+                                                    Scheduled
+                                                </a>
+                                            </div>
+                                            <div class="col-3">
+                                                <t t-esc="record.todo_request_count_date.value"/>
+                                            </div>
+                                            <div class="col-9">
+                                                <a name="%(hr_aftersale_todo_request_action_from_dashboard)d" type="action" context="{'search_default_top_priority': 1}">
+                                                    Top Priorities
+                                                </a>
+                                            </div>
+                                            <div class="col-3">
+                                                <t t-esc="record.todo_request_count_high_priority.value"/>
+                                            </div>
+                                            <div class="col-9">
+                                                <a name="%(hr_aftersale_todo_request_action_from_dashboard)d" type="action" context="{'search_default_kanban_state_block': 1}">
+                                                    Blocked
+                                                </a>
+                                            </div>
+                                            <div class="col-3">
+                                                <t t-esc="record.todo_request_count_block.value"/>
+                                            </div>
+                                            <div class="col-9">
+                                                <a name="%(hr_aftersale_todo_request_action_from_dashboard)d" type="action" context="{'search_default_unscheduled': 1}">
+                                                    Unscheduled
+                                                </a>
+                                            </div>
+                                            <div class="col-3">
+                                                <t t-esc="record.todo_request_count_unscheduled.value"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div><div class="container o_kanban_card_manage_pane dropdown-menu" role="menu">
+                                <div class="row">
+                                    <div class="col-6 o_kanban_card_manage_section o_kanban_manage_view">
+                                        <div role="menuitem" class="o_kanban_card_manage_title">
+                                            <span>View</span>
+                                        </div>
+                                        <div role="menuitem">
+                                            <a name="%(hr_aftersale_todo_request_action_from_dashboard)d" type="action">
+                                                All
+                                            </a>
+                                        </div>
+                                        <div role="menuitem">
+                                            <a name="%(hr_aftersale_todo_request_action_from_dashboard)d" type="action" context="{'search_default_todo': 1}">
+                                                To Do
+                                            </a>
+                                        </div>
+                                        <div role="menuitem">
+                                            <a name="%(hr_aftersale_todo_request_action_from_dashboard)d" type="action" context="{'search_default_progress': 1}">
+                                                In Progress
+                                            </a>
+                                        </div>
+                                        <div role="menuitem">
+                                            <a name="%(hr_aftersale_todo_request_action_from_dashboard)d" type="action" context="{'search_default_done': 1}">
+                                                Done
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 o_kanban_card_manage_section o_kanban_manage_new">
+                                        <div role="menuitem" class="o_kanban_card_manage_title">
+                                            <span>Reporting</span>
+                                        </div>
+                                        <div role="menuitem">
+                                            <a name="%(aftersale_request_action_reports)d" type="action" context="{'search_default_aftersale_team_id': active_id}">
+                                            AfterSale Requests
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div t-if="widget.editable" class="o_kanban_card_manage_settings row">
+                                    <div class="col-8" role="menuitem" aria-haspopup="true">
+                                        <ul role="menu" class="oe_kanban_colorpicker" data-field="color"/>
+                                    </div>
+                                    <div role="menuitem" class="col-4 text-right">
+                                        <a type="edit">Settings</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="aftersale_team_view_search" model="ir.ui.view">
+        <field name="name">aftersale.team.search</field>
+        <field name="model">aftersale.team</field>
+        <field name="arch" type="xml">
+            <search string="Search">
+                <filter string="Archived" domain="[('active', '=', False)]" name="inactive"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- aftersale.team : actions -->
+    <record id="aftersale_team_action_settings" model="ir.actions.act_window">
+        <field name="name">Teams</field>
+        <field name="res_model">aftersale.team</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="search_view_id" ref="aftersale_team_view_search"/>
+        <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'tree', 'view_id': ref('aftersale_team_view_tree')}),
+                (0, 0, {'view_mode': 'kanban', 'view_id': ref('aftersale_team_view_kanban')})]"/>
+        <field name="help" type="html">
+          <p class="o_view_nocontent_smiling_face">
+            Add a team in the aftersale request
+          </p>
+        </field>
+    </record>
+
+    <record id="aftersale_dashboard_action" model="ir.actions.act_window">
+        <field name="name">AfterSale Teams</field>
+        <field name="res_model">aftersale.team</field>
+        <field name="view_mode">kanban,form</field>
+        <field name="view_type">form</field>
+        <field name="view_id" ref="aftersale_team_kanban"/>
+        <field name="help" type="html">
+          <p class="o_view_nocontent_smiling_face">
+            Add a new stage in the aftersale request
+          </p>
+        </field>
+    </record>
+
+
+    <!-- Menu items hierachy -->
+    <menuitem
+        id="menu_aftersale_title"
+        name="AfterSale"
+        web_icon="aftersale,static/description/icon.png"
+        sequence="110"/>
+
+    <menuitem
+        id="menu_m_dashboard"
+        name="Dashboard"
+        parent="menu_aftersale_title"
+        groups="group_aftersale_manager,base.group_user"
+        action="aftersale_dashboard_action"
+        sequence="0"/>
+
+    <menuitem
+        id="menu_m_request"
+        name="AfterSale"
+        parent="menu_aftersale_title"
+        groups="group_aftersale_manager,base.group_user"
+        sequence="1"/>
+
+    <menuitem
+        id="menu_m_request_form"
+        name="AfterSale Requests"
+        parent="menu_m_request"
+        action="hr_aftersale_request_action"
+        groups="group_aftersale_manager,base.group_user"
+        sequence="1"/>
+
+    <menuitem
+        id="menu_m_request_calendar"
+        name="AfterSale Calendar"
+        parent="menu_m_request"
+        action="hr_aftersale_request_action_cal"
+        groups="group_aftersale_manager,base.group_user"
+        sequence="2"/>
+
+
+    <menuitem
+        id="menu_m_reports"
+        name="Reporting"
+        parent="menu_aftersale_title"
+        groups="group_aftersale_manager,base.group_user"
+        sequence="3"/>
+
+    <menuitem
+        id="menu_m_reports_oee"
+        name="Overall Equipment Effectiveness (OEE)"
+        parent="menu_m_reports"
+        groups="group_aftersale_manager,base.group_user"
+        sequence="1"/>
+
+    <menuitem
+        id="menu_m_reports_losses"
+        name="Losses Analysis"
+        parent="menu_m_reports"
+        groups="group_aftersale_manager,base.group_user"
+        sequence="2"/>
+
+    <menuitem
+        id="aftersale_reporting"
+        name="Reporting"
+        parent="menu_aftersale_title"
+        sequence="20"/>
+    <menuitem
+        id="aftersale_request_reporting"
+        action="aftersale_request_action_reports"
+        parent="aftersale_reporting"/>
+
+    <menuitem
+        id="menu_aftersale_configuration"
+        name="Configuration"
+        parent="menu_aftersale_title"
+        groups="group_aftersale_manager"
+        sequence="100"/>
+
+    <menuitem
+        id="menu_aftersale_teams"
+        name="AfterSale Teams"
+        parent="menu_aftersale_configuration"
+        action="aftersale_team_action_settings"
+        groups="group_aftersale_manager"
+        sequence="1"/>
+
+    <menuitem
+        id="menu_aftersale_stage_configuration"
+        name="AfterSale Stages"
+        parent="menu_aftersale_configuration"
+        action="hr_aftersale_stage_action"
+        groups="base.group_no_one"
+        sequence="3" />
+
+    <menuitem
+        id="menu_aftersale_type_configuration"
+        name="AfterSale Type"
+        parent="menu_aftersale_configuration"
+        action="hr_aftersale_type_action"
+        groups="group_aftersale_manager"
+        sequence="4" />
+</odoo>

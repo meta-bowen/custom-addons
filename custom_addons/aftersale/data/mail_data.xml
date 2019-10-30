@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data>
+    <!-- AfterSale-specific activities, for automatic generation mainly -->
+    <record id="mail_act_aftersale_request" model="mail.activity.type">
+        <field name="name">AfterSale Request</field>
+        <field name="icon">fa-wrench</field>
+        <field name="res_model_id" ref="aftersale.model_aftersale_request"/>
+    </record>
+
+    <!-- email alias for aftersale requests -->
+    <record id="mail_alias_equipment" model="mail.alias">
+        <field name="alias_name">helpdesk</field>
+        <field name="alias_model_id" ref="model_aftersale_request"/>
+        <field name="alias_user_id" ref="base.user_admin"/>
+    </record>
+
+    <!-- AfterSale Request-related subtypes for messaging / Chatter -->
+    <record id="mt_req_created" model="mail.message.subtype">
+        <field name="name">Request Created</field>
+        <field name="res_model">aftersale.request</field>
+        <field name="default" eval="False"/>
+        <field name="hidden" eval="True"/>
+        <field name="description">AfterSale Request created</field>
+    </record>
+    <record id="mt_req_status" model="mail.message.subtype">
+        <field name="name">Status Changed</field>
+        <field name="res_model">aftersale.request</field>
+        <field name="default" eval="True"/>
+        <field name="description">Status changed</field>
+    </record>
+</data>
+</odoo>

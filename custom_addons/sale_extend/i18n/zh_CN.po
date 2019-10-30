@@ -1,0 +1,197 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * sale_extend
+# 
+# Translators:
+# wanbowen 深圳 <wbw157@gmail.com>, 2019-09
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 12.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-03-29 10:09+0000\n"
+"PO-Revision-Date: 2018-08-24 09:23+0000\n"
+"Last-Translator: wanbowen <wbw157@gmail.com>, 2019\n"
+"Language-Team: Chinese (China) (https://www.transifex.com/odoo/teams/41243/zh_CN/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Language: zh_CN\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#. module: sale_extend
+#: model:ir.model.fields,field_description:sale_extend.field_invoice__external_report_layout_id
+msgid "Document Template"
+msgstr "发票模板"
+
+#. module: sale_extend
+#: model_terms:ir.ui.view,arch_db:sale_extend.view_sale_advance_payment_inv_inherit
+msgid "Invoice Template"
+msgstr "发票模板"
+
+#. module: sale_extend
+#: model_terms:ir.ui.view,arch_db:sale_extend.view_sale_advance_payment_inv_inherit
+msgid "Select a Invoice Template"
+msgstr "选择一个发票模板"
+
+#. module: sale_extend
+#: model_terms:ir.ui.view,arch_db:sale_extend.view_sale_advance_payment_inv_inherit
+msgid "Create and View Invoices"
+msgstr "创建并查看发票"
+
+#. module: sale_extend
+#: model_terms:ir.ui.view,arch_db:sale_extend.view_sale_advance_payment_inv_inherit
+msgid "Create Invoices"
+msgstr "创建发票"
+
+
+
+
+
+#. module: sale_extend
+#: model:ir.model.fields,field_description:sale_extend.field_pricelist__item_ids
+msgid "Pricelist Items"
+msgstr "价格表项目"
+
+#. module: sale_extend
+#: model_terms:ir.ui.view,arch_db:sale_extend.view_product_pricelist_inherit
+msgid "Pricelist"
+msgstr "价格表"
+
+#. module: sale_extend
+#: model_terms:ir.ui.view,arch_db:sale_extend.view_product_pricelist_inherit
+msgid "Pricelist Items"
+msgstr "价格表项"
+
+#. module: sale_extend
+#: model_terms:ir.ui.view,arch_db:sale_extend.view_product_pricelist_inherit
+msgid "Pricelist Name"
+msgstr "价格表名"
+
+#. module: sale_extend
+#: model_terms:ir.ui.view,arch_db:sale_extend.view_product_pricelist_inherit
+msgid "Product Name"
+msgstr "产品名"
+
+#. module: sale_extend
+#: model_terms:ir.ui.view,arch_db:sale_extend.view_product_pricelist_inherit
+msgid "Price"
+msgstr "价格"
+
+
+
+
+#. module: sale_extend
+#: model:ir.model.fields,field_description:sale_extend.field_product_evaluate__name
+msgid "Title"
+msgstr "评价标题"
+
+#. module: sale_extend
+#: model:ir.model.fields,field_description:sale_extend.field_product_evaluate__date
+msgid "Date"
+msgstr "评价日期"
+
+#. module: sale_extend
+#: model:ir.model.fields,field_description:sale_extend.field_product_evaluate__active
+msgid "Active?"
+msgstr "有效？"
+
+#. module: sale_extend
+#: model:ir.model.fields,field_description:sale_extend.field_product_evaluate__notes
+msgid "Evaluate Notes"
+msgstr "评价补充"
+
+#. module: sale_extend
+#: model:ir.model.fields,field_description:sale_extend.field_product_evaluate__avg_rating
+msgid "Average Rating"
+msgstr "评价得分"
+
+#. module: sale_extend
+#: model:ir.model.fields,field_description:sale_extend.field_product_evaluate__avg_rating_history
+msgid "History Average Rating"
+msgstr "总体评价均分"
+
+#. module: sale_extend
+#: model:ir.model.fields,field_description:sale_extend.field_product_evaluate__avg_rating_product
+msgid "Product Average Rating"
+msgstr "产品总体评价均分"
+
+#. module: sale_extend
+#: model:ir.model.fields,field_description:sale_extend.field_product_evaluate__product_tmpl_id
+msgid "Product Name"
+msgstr "产品名"
+
+#. module: sale_extend
+#: model:ir.model.fields,field_description:sale_extend.field_product_evaluate__customer_id
+msgid "Customer Name"
+msgstr "客户名"
+
+#. module: sale_extend
+#: model:ir.model.fields,field_description:sale_extend.field_product_evaluate__appearance
+msgid "Appearance rate"
+msgstr "外观评价"
+
+#. module: sale_extend
+#: model:ir.model.fields,field_description:sale_extend.field_product_evaluate__quality
+msgid "Quality rate"
+msgstr "质量评价"
+
+#. module: sale_extend
+#: model:ir.model.fields,field_description:sale_extend.field_product_evaluate__function
+msgid "Function rate"
+msgstr "功能评价"
+
+#. module: sale_extend
+#: model:ir.model.fields,field_description:sale_extend.field_product_evaluate__cost_performance
+msgid "Cost-Performance rate"
+msgstr "性价比"
+
+#. module: sale_extend
+#: model_terms:ir.ui.view,arch_db:sale_extend.view_search_evaluate
+msgid "5-Star Product"
+msgstr "5星评价产品"
+
+#. module: sale_extend
+#: model_terms:ir.ui.view,arch_db:sale_extend.view_search_evaluate
+msgid "1-Star Product"
+msgstr "1星评价产品"
+
+#. module: sale_extend
+#: model_terms:ir.ui.view,arch_db:sale_extend.view_search_evaluate
+msgid "Active"
+msgstr "有效评价"
+
+#. module: sale_extend
+#: model_terms:ir.ui.view,arch_db:sale_extend.view_search_evaluate
+msgid "Inactive"
+msgstr "失效评价"
+
+#. module: sale_extend
+#: model_terms:ir.ui.view,arch_db:sale_extend.view_search_evaluate
+msgid "Product"
+msgstr "产品"
+
+#. module: sale_extend
+#: model_terms:ir.ui.view,arch_db:sale_extend.view_search_evaluate
+msgid "Customer"
+msgstr "客户"
+
+#. module: sale_extend
+#: model_terms:ir.ui.view,arch_db:sale_extend.view_search_evaluate
+msgid "Average Rating"
+msgstr "产品评价均分"
+
+#. module: sale_extend
+#: model_terms:ir.ui.view,arch_db:sale_extend.view_search_evaluate
+msgid "Status"
+msgstr "状态"
+
+#. module: sale_extend
+#: model_terms:ir.ui.view,arch_db:sale_extend.view_search_evaluate
+msgid "Evaluate Date"
+msgstr "评价日期"
+
+#. module: sale_extend
+#: model:ir.actions.act_window,name:sale_extend.action_product_evaluate
+#: model:ir.ui.menu,name:sale_extend.menu_product_evaluate
+msgid "Product Evaluate"
+msgstr "产品评价"

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_sale_advance_payment_inv_inherit" model="ir.ui.view">
+        <field name="name">Invoice Orders</field>
+        <field name="model">sale.advance.payment.inv</field>
+        <field name="inherit_id" ref="sale.view_sale_advance_payment_inv"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='deposit_taxes_id']" position="after">
+                <separator string="Invoice Template"/>
+<!--                <field name="invoice_template" string="Select a Invoice Template"/>-->
+                <label for="external_report_layout_id" string="Select a Invoice Template" colspan="2" />
+                <field name="external_report_layout_id" colspan="2" nolabel="1"
+                        class="report_layout_container"
+                        widget="report_layout" options="{
+                            'field_image': 'preview_image',
+                            'field_binary': 'preview_pdf'
+                        }"/>
+            </xpath>
+            <xpath expr="//footer/button[1]" position="replace">
+                <button string="Create and View Invoices" class="btn-primary" type="object" context="{'open_invoices': True}" name="create_invoices" />
+            </xpath>
+            <xpath expr="//footer/button[2]" position="replace">
+                <button string="Create Invoices" class="btn-primary" type="object" name="create_invoices" />
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

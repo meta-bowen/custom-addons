@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--tree 列表视图-->
+    <record model="ir.ui.view" id="product_evaluate_view_tree">
+        <field name="name">Product Evaluate List</field>
+        <field name="model">product.evaluate</field>
+        <field name="arch" type="xml">
+            <tree string="product_evaluate_tree">
+                <field name="name" />
+                <field name="avg_rating" />
+                <field name="product_tmpl_id" />
+                <field name="customer_id" />
+                <field name="date"/>
+            </tree>
+        </field>
+    </record>
+
+    <!--form 表单视图-->
+    <record model="ir.ui.view" id="product_evaluate_view_form">
+        <field name="name">Product Evaluate Form</field>
+        <field name="model">product.evaluate</field>
+        <field name="arch" type="xml">
+            <form string="product_evaluate_form">
+                <header>
+<!--                    <button name="button_avg_rating_history" type="object" string="History Average Rating" />-->
+<!--                    <button name="button_avg_rating_product" type="object" string="Product Average Rating" />-->
+                </header>
+                <sheet>
+                    <group name="group_top">
+                        <group name="group_left">
+                            <field name="name" />
+                            <field name="date" />
+                            <field name="product_tmpl_id" />
+                            <field name="customer_id" />
+                        </group>
+                        <group name="group_left">
+                            <field name="appearance" />
+                            <field name="quality" />
+                            <field name="function" />
+                            <field name="cost_performance" />
+                        </group>
+                        <group name="group_left">
+                            <field name="active"/>
+                            <field name="avg_rating" />
+                            <field name="avg_rating_history" />
+                            <field name="avg_rating_product" />
+                        </group>
+                    </group>
+                    <separator string="Evaluate Note"/>
+                    <group name="group_bottom">
+                        <field name="notes" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!--图表和表格视图-->
+    <record model="ir.ui.view" id="view_product_evaluate_pivot">
+        <field name="name">product.month.pivot</field>
+        <field name="model">product.evaluate</field>
+        <field name="arch" type="xml">
+            <pivot string="Product Evaluate Statistics Pivot" disable_linking="True">
+                <field name="product_tmpl_id" type="row"/>
+                <field name="date" interval="day" type="col"/>
+                <field name="avg_rating" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+    <record model="ir.ui.view" id="view_product_evaluate_graph">
+        <field name="name">product.month.graph</field>
+        <field name="model">product.evaluate</field>
+        <field name="arch" type="xml">
+            <graph string="Product Evaluate Statistics Graph" stacked="False">
+                <!--以 product_tmpl_id 作为分组依据-->
+                <field name="product_tmpl_id" type="row"/>
+                <field name="date" interval="day" type="row"/>
+                <field name="customer_id" />
+                <field name="avg_rating" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!--    搜索字段和可用过滤器-->
+    <record id="view_search_evaluate" model="ir.ui.view">
+        <field name="name">Evaluate Filters</field>
+        <field name="model">product.evaluate</field>
+        <field name="arch" type="xml">
+            <search>
+                <!--<field>元素定义在搜索框中输入搜索的字段-->
+                <field name="product_tmpl_id" />
+                <!--<filter>元素添加预定义过滤条件，用户通过点击来切换-->
+                <filter name="filter_5_star"
+                    string="5-Star Product"
+                    domain="[('avg_rating','=',5.0)]" />
+                <filter name="filter_1_star"
+                    string="1-Star Product"
+                    domain="[('avg_rating','=',1.0)]" />
+                <filter name="filter_active"
+                    string="Active"
+                    domain="[('active','=',True)]" />
+                <filter name="filter_inactive"
+                    string="Inactive"
+                    domain="[('active','=',False)]" />
+                <group expand="1" string="Group By">
+                    <filter string="Product" name="product_id" context="{'group_by':'product_tmpl_id'}"/>
+                    <filter string="Customer" name="customer_id" context="{'group_by':'customer_id'}"/>
+                    <filter string="Average Rating" name="avg_rating" context="{'group_by':'avg_rating'}"/>
+                    <separator/>
+                    <filter string="Evaluate Date" name="date" context="{'group_by': 'date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <act_window id="action_product_evaluate"
+        name="Product Evaluate"
+        res_model="product.evaluate"
+        view_type="form"
+        view_mode="tree,form,graph,pivot"
+    />
+    <menuitem id="menu_product_evaluate"
+        name="Product Evaluate"
+        parent="sale.product_menu_catalog"
+        action="action_product_evaluate"
+        sequence="3"
+    />
+</odoo>

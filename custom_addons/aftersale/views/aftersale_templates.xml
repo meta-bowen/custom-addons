@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="assets_backend" name="aftersale assets" inherit_id="web.assets_backend">
+        <xpath expr="." position="inside">
+            <link rel="stylesheet" type="text/scss" href="/aftersale/static/src/scss/aftersale_team_dashboard.scss"/>
+        </xpath>
+    </template>
+</odoo>

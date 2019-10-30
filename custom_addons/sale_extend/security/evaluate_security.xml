@@ -1,0 +1,38 @@
+<?xml version="1.0" ?>
+<odoo>
+    <record id="module_evaluate_category" model="ir.module.category">
+        <!--创建model分类-->
+        <field name="name">Product Evaluate</field>
+    </record>
+    <!--recode id => 对应csv文件中group_id:id-->
+    <record id="evaluate_group_user" model="res.groups">
+        <!--name：组名
+            category_id：关联应用，这是一个关联字段，因此使用了 ref 属性来通过 XML ID 连接已创建的分类
+            implied_ids：这是一个one-to-many关联字段，包含一系列组来对组内用户生效。-->
+        <field name="name">User</field>
+        <field name="category_id" ref="module_evaluate_category" />
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]" />
+    </record>
+    <record id="evaluate_group_manager" model="res.groups">
+        <!--添加users 字段，让管理员和内部 root 用户自动成为应用管理员-->
+        <field name="name">Manager</field>
+        <field name="category_id" ref="module_evaluate_category" />
+        <field name="implied_ids" eval="[(4, ref('evaluate_group_user'))]" />
+        <field name="users" eval="[
+                    (4, ref('base.user_root')),
+                    (4, ref('base.user_admin'))
+                ]" />
+    </record>
+    <!--记录规则位于<data noupdate=”1″>元素中，表示这些记录在模型安装时会被创建，但在模型更新时不会被重写-->
+    <!--开发过程noupdate=”1″会带来麻烦，因为要修复规则时模块更新不会在数据库中重写数据。所以在开发时可以修改为noupdate=”0″来让数据达到预期结果-->
+    <data noupdate="0">
+        <record id="evaluate_user_rule" model="ir.rule">
+            <field name="name">Product Evaluate User Access</field>
+            <field name="model_id" ref="model_product_evaluate" />
+            <field name="domain_force">
+                [('active','=',True)]
+            </field>
+            <field name="groups" eval="[(4,ref('evaluate_group_user'))]" />
+        </record>
+    </data>
+</odoo>
